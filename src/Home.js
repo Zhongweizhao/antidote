@@ -2,35 +2,63 @@ import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { auth, firebase, firestore } from "./Firebase";
 import { State } from "./State";
+import 'tachyons/css/tachyons.css'
+
+const buttonClass = 'f6 link bn pointer br3 ma2 bw1 ph3 pv2 mb2 dib white bg-dark-blue';
 
 function Home() {
   const user = auth.currentUser;
 
+  const centerClass = 'mw7 center ph3 ph5-ns tc br2 pv5 mb5 v-mid dtc';
+
   return (
-    <div>
-      {user && <CreateRoom />}
-      {user && <JoinRoom />}
-      {user && <Logout user={user} />} 
-      {!user && <Login />} 
+    <div className='vh-100 dt w-100 bg-washed-blue'>
+      {
+        (!user) && 
+        <div className={centerClass}>
+          <Title />
+          <Login />
+        </div>
+      }
+      {
+        user &&
+        <div className={centerClass}>
+          <Title />
+          <div className='mw7 center pa4 br2-ns bn'>
+            <CreateRoom />
+            <JoinRoom />
+            <Logout user={user} />
+          </div>
+        </div>
+      }
     </div>
   )
+}
 
+function Title() {
+  return (
+    <h1 className='f1 f-headline-1 fw1 ttu tracked mb2 lh-title'>
+      Antidote
+    </h1>
+  )
 }
 
 function Login() {
-  const signInWithGoogle = () => {
+  const signInWithGoogle = (e) => {
+    e.preventDefault();
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider);
   }
 
-  const signInAnonymously = () => {
+  const signInAnonymously = (e) => {
+    e.preventDefault();
     auth.signInAnonymously();
   }
 
   return (
-    <div>
-      <button onClick={signInWithGoogle}>Sign in with Google</button>
-      <button onClick={signInAnonymously}>Sign in anonymously</button>
+    <div className='ph3'>
+      <button onClick={signInWithGoogle} className={buttonClass}>Sign in with Google</button>
+      <button onClick={signInAnonymously} className={buttonClass}>Sign in anonymously</button>
     </div>
   )
 }
@@ -43,8 +71,10 @@ function Logout(props) {
 
   return (
     <div>
-      User {user.uid}
-      <button onClick={logout}>Logout</button>
+      <label className='f6 b mb2 dib mr2'>
+        User {user.uid}
+      </label>
+      <button className={buttonClass + ' dib'} onClick={logout}>Logout</button>
     </div>
   )
 }
@@ -109,7 +139,8 @@ function CreateRoom() {
   const [error, setError] = useState('');
   const [numPlayers, setNumPlayers] = useState(0);
   const { uid } = auth.currentUser;
-  const createRoom = async () => {
+  const createRoom = async (e) => {
+    e.preventDefault();
     try {
       const roomRef = await _createRoom(numPlayers);
       await _joinRoom(roomRef, uid, history);
@@ -123,12 +154,13 @@ function CreateRoom() {
   }
 
   return (
-    <div>
-      <label>
-        Num players <input required type='number' onChange={handleChange} />
+    <div className=''>
+      <label className='f6 b mb2 dib mr2'>
+        Num players 
       </label>
-      <button onClick={createRoom}>Create Room</button>
-      {error}
+      <input className='input-reset br3 ba b--black-20 pa2 mb2 dib w-20 h2 mr2' required type='number' onChange={handleChange} />
+      <button className={buttonClass + ' dib'} onClick={createRoom}>Create Room</button>
+      <small className='f6 black-60 db mb2'>{error}</small>
     </div>
   )
 }
@@ -153,15 +185,17 @@ function JoinRoom() {
     setCode(e.target.value);
   }
 
+  const inputClass = 'input-reset br3 ba b--black-20 pa2 mb2 dib w-50 h2 mr2';
+
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Code <input type='text' required onChange={handleChange} />
-        </label>
-        <button type='submit'>Join</button>{error}
-      </form>
-    </div>
+    <form className='' onSubmit={handleSubmit}>
+      <label className='f6 b mb2 dib mr2'>
+        Code 
+      </label>
+      <input className={inputClass} type='text' required onChange={handleChange} />
+      <button className={buttonClass + ' dib'} type='submit'>Join</button>{error}
+      <small className='f6 black-60 db mb2'>{error}</small>
+    </form>
   )
 }
 
