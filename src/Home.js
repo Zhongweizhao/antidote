@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import { auth, firebase, firestore } from "./Firebase";
 import { State } from "./State";
-import 'tachyons/css/tachyons.css'
+import 'tachyons/css/tachyons.css';
+import { addPlayerToRoom } from "./JoinRoom";
 
 const buttonClass = 'f6 link bn pointer br3 ma2 bw1 ph3 pv2 mb2 dib white bg-dark-blue';
 
@@ -12,7 +13,7 @@ function Home() {
   const centerClass = 'mw7 center ph3 ph5-ns tc br2 pv5 mb5 v-mid dtc';
 
   return (
-    <div className='vh-100 dt w-100 bg-washed-blue'>
+    <div className='vh-100 dt w-100 bg-lightest-blue'>
       {
         (!user) && 
         <div className={centerClass}>
@@ -79,27 +80,10 @@ function Logout(props) {
   )
 }
 
-function _generateGameState(players) {
-  let gameState = {
-    players,
-    state: State.TURN_START,
-    turnOwnerIndex: 0,
-    numStageCardsRequired: 0,
-  };
-  players.forEach(player => {      
-    gameState[player] = {
-      hand: ['1', '2', '3', '4', '5', '6'],
-      stage: [],
-      workstation: [],
-    };
-  });
-  return gameState;
-}
-
 async function _createRoom(numPlayers) {
   const roomRef = firestore.collection('rooms').doc();
 
-  if (numPlayers < 2 || numPlayers > 9) {
+  if (numPlayers < 3 || numPlayers > 7) {
     throw new Error("Invalid number of players.");
   }
 
@@ -112,25 +96,7 @@ async function _createRoom(numPlayers) {
 }
 
 async function _joinRoom(roomRef, uid, history) {
-  const roomResp = await roomRef.get();
-  if (!roomResp.exists) {        
-    throw new Error("Invalid room.");
-  }
-  const room = roomResp.data();
-  if (!room.players) room.players = [];
-  let numPlayers = room.players.length;
-  if (!room.players.includes(uid)) {
-    numPlayers = room.players.push(uid);
-  }
-  if (numPlayers > room.numPlayers) {
-    throw new Error("Room full.");
-  }
-  let updateDict = {};
-  updateDict.players = room.players;
-  if (numPlayers === room.numPlayers) {
-    updateDict.gameState = _generateGameState(room.players);
-  }
-  await roomRef.update(updateDict);
+  await addPlayerToRoom(roomRef, uid);
   history.push('/' + roomRef.id);
 }
 
@@ -142,7 +108,7 @@ function CreateRoom() {
   const createRoom = async (e) => {
     e.preventDefault();
     try {
-      const roomRef = await _createRoom(numPlayers);
+      const roomRef = await _createRoom(parseInt(numPlayers));
       await _joinRoom(roomRef, uid, history);
     } catch(e) {
       setError(e.toString());

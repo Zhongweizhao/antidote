@@ -293,6 +293,11 @@ function PickTrade() {
 
   const handleTrade = async (e) => {
     e.preventDefault();
+
+    if (player === uid) {
+      setError('Cannot trade with yourself.');
+      return;
+    }
     
     if (!gameState.players.includes(player)) {
       setError('Invalid player');
@@ -305,9 +310,11 @@ function PickTrade() {
     // everyone else have their card back
     gameState.players.forEach(p => {
       if (p !== uid && p !== player && isValidCard(gameState[p].stage[0])) {
-        gameState[p].hand = gameState[p].hand.concat(gameState[p].stage);
+        if (isValidCard(gameState[p].stage[0])) {
+          gameState[p].hand = gameState[p].hand.concat(gameState[p].stage);
+        }
+        gameState[p].stage = [];
       }
-      gameState[p].stage = [];
     });
     gameState[uid].hand = gameState[uid].hand.concat(gameState[player].stage);
     gameState[player].hand = gameState[player].hand.concat(gameState[uid].stage);
