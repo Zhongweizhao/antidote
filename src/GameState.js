@@ -28,8 +28,8 @@ function generateFormulaCards(gameState) {
 
   let deck = Shuffle.shuffle({deck: cards, random: myRandom});
   let hands = [];
-  for (let i = 0; i < gameState.numPlayers; ++i) {
-    if (gameState.numPlayers === 3) {
+  for (let i = 0; i < numPlayers; ++i) {
+    if (numPlayers === 3) {
       hands.push(deck.drawRandom(3));
     } else {
       hands.push(deck.drawRandom(2));
@@ -45,11 +45,14 @@ function generateFormulaCards(gameState) {
   }
 
   deck = Shuffle.shuffle({deck: cards, random: myRandom});
-  for (let i = 0; i < gameState.numPlayers; ++i) {
+  for (let i = 0; i < numPlayers; ++i) {
     hands[i] = hands[i].concat(deck.drawRandom(gameState.numFormulas));
   }
 
-  return hands;
+  return {
+    hands,
+    antidote
+  };
 }
 
 function generateGameState(players) {
@@ -91,14 +94,16 @@ function generateGameState(players) {
     numSyringes,
     handSize,
   };
-  let hands = generateFormulaCards(gameState);
+  let { hands, antidote } = generateFormulaCards(gameState);
   players.forEach((player, idx) => {      
     gameState[player] = {
       hand: hands[idx],
       stage: [],
       workstation: [],
+      point: 0,
     };
   });
+  gameState.antidote = antidote;
   return gameState;
 }
 

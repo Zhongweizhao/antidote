@@ -1,9 +1,23 @@
 import { useContext, useState } from "react";
-import { isValidCard } from "./Card";
+import { isFormulaCard, isValidCard } from "./Card";
 import { auth, firestore } from "./Firebase";
 import { RoomContext } from "./RoomContext";
 import { State } from "./State";
 
+function _checkGameOver(gameState) {
+  let p = gameState.players[0];
+  if (gameState[p].hand.length + gameState[p].stage.length > 1) return;
+
+  gameState.state = State.GAME_OVER;
+
+  gameState.players.forEach(player => {
+    const lastCard = gameState[player].hand[0];
+    const formula = lastCard.charCodeAt(0) - 65;
+    let point = isFormulaCard(lastCard) ? lastCard.charCodeAt(1) - 48 : 1;
+    const matchesAntidote = formula === gameState.antidote;
+    gameState[player].point += matchesAntidote ? point : -point;
+  });
+}
 
 function _canDiscard(uid) {
   const { room } = useContext(RoomContext);
@@ -99,38 +113,34 @@ function needsAttention(uid) {
     || _canPassRight(uid);
 }
 
-function Actions() {
+function Actions(props) {
+  const { selectedCard, selectCard } = props;
   const { uid } = auth.currentUser;
   return (
     <div>
-      {_canDiscard(uid) && <Discard />}
-      {_canStartTrade(uid) && <StartTrade />}
-      {_canPickTrade(uid) && <PickTrade />}
-      {_canPassLeft(uid) && <Pass direction='left' />}
-      {_canPassRight(uid) && <Pass direction='right' />}
+      {_canDiscard(uid) && <Discard card={selectedCard} selectCard={selectCard} />}
+      {_canStartTrade(uid) && <StartTrade card={selectedCard} selectCard={selectCard} />}
+      {_canPickTrade(uid) && <PickTrade card={selectedCard} selectCard={selectCard} />}
+      {_canPassLeft(uid) && <Pass direction='left' card={selectedCard} selectCard={selectCard} />}
+      {_canPassRight(uid) && <Pass direction='right' card={selectedCard} selectCard={selectCard} />}
     </div>
   )
 }
 
-function Discard() {
+function Discard(props) {
+  const { card, selectCard } = props;
   const { room, roomId } = useContext(RoomContext);
   let { gameState } = room;
   const { uid } = auth.currentUser;
 
   const [error, setError] = useState('');
-  const [card, setCard] = useState('');
-
-  const handleChange = (e) => {
-    setError('');
-    setCard(e.target.value);
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     const index = gameState[uid].hand.indexOf(card);
     if (index === -1) {
-      setError('Invalid card.');
+      setError(`Invalid card ${card}.`);
       return;
     }
 
@@ -159,6 +169,9 @@ function Discard() {
       }
     }
 
+    _checkGameOver(gameState);
+    selectCard('');
+    setError('');
     await firestore.collection('rooms').doc(roomId).update({
       'gameState': gameState,
     }).catch(err => {
@@ -167,29 +180,24 @@ function Discard() {
   }
   
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Discard
-        <input type='text' required onChange={handleChange} />
-      </label>
-      <button type='submit'>Discard</button>
-      {error}
-    </form>
+    <div>
+      <div>
+        <button onClick={handleSubmit}>Discard</button>
+      </div>
+      <div>
+        <span>{error}</span>
+      </div>
+    </div>
   )
 }
 
-function StartTrade() {
+function StartTrade(props) {
+  const { card, selectCard } = props;
   const { room, roomId } = useContext(RoomContext);
   const { gameState } = room;
   const { uid } = auth.currentUser;
 
   const [error, setError] = useState('');
-  const [card, setCard] = useState('');
-
-  const handleChange = (e) => {
-    setError('');
-    setCard(e.target.value);
-  }
 
   const turnOwner = gameState.players[gameState.turnOwnerIndex];
 
@@ -228,6 +236,9 @@ function StartTrade() {
       }
     }
 
+    _checkGameOver(gameState);
+    selectCard('');
+    setError('');
     await firestore.collection('rooms').doc(roomId).update({
       'gameState': gameState,
     }).catch(err => {
@@ -266,33 +277,35 @@ function StartTrade() {
   }
 
   return (
-    <form>
-      <label>
-        Trade
-        <input type='text' required onChange={handleChange} />
-      </label>
-      <button onClick={handleTrade}>Trade</button>
-      <button onClick={handleDeny}>Deny</button>
-      {error}
-    </form>
+    <div>
+      <div>
+        <button onClick={handleTrade}>Trade</button>
+        <button onClick={handleDeny}>Deny</button>
+      </div>
+      <div>
+        <span>{error}</span>
+      </div>
+    </div>
   )
 }
 
-function PickTrade() {
+function PickTrade(props) {
+  const { card, selectCard } = props;
   const { room, roomId } = useContext(RoomContext);
   const { gameState } = room;
   const { uid } = auth.currentUser;
 
   const [error, setError] = useState('');
-  const [player, setPlayer] = useState('');
-
-  const handleChange = (e) => {
-    setError('');
-    setPlayer(e.target.value);
-  }
 
   const handleTrade = async (e) => {
     e.preventDefault();
+
+    let player = '';
+    gameState.players.forEach(p => {
+      if (gameState[p].stage.includes(card)) {
+        player = p;
+      }
+    });
 
     if (player === uid) {
       setError('Cannot trade with yourself.');
@@ -324,6 +337,9 @@ function PickTrade() {
     gameState.state = State.TURN_START;
     gameState.numStageCardsRequired = 0;
 
+    _checkGameOver(gameState);
+    selectCard('');
+    setError('');
     await firestore.collection('rooms').doc(roomId).update({
       'gameState': gameState,
     }).catch(err => {
@@ -343,6 +359,9 @@ function PickTrade() {
     gameState.state = State.TURN_START;
     gameState.numStageCardsRequired = 0;
 
+    _checkGameOver(gameState);
+    selectCard('');
+    setError('');
     await firestore.collection('rooms').doc(roomId).update({
       'gameState': gameState,
     }).catch(err => {
@@ -351,33 +370,28 @@ function PickTrade() {
   }
 
   return (
-    <form>
-      <label>
-        Player to accept trade 
-        <input type='text' required onChange={handleChange} />
-      </label>
-      <button onClick={handleTrade}>Trade</button>
-      <button onClick={handleDeny}>Deny</button>
-      {error}
-    </form>
+    <div>
+      <div>
+        <button onClick={handleTrade}>Trade</button>
+        <button onClick={handleDeny}>Deny</button>
+      </div>
+      <div>
+        <span>{error}</span>
+      </div>
+    </div>
   )
 }
 
 function Pass(props) {
+  const { card, selectCard } = props;
   const { room, roomId } = useContext(RoomContext);
   let { gameState } = room;
   const { uid } = auth.currentUser;
 
   const [error, setError] = useState('');
-  const [card, setCard] = useState('');
 
   const passState = props.direction === 'left' ? State.PASS_LEFT : State.PASS_RIGHT;
   
-  const handleChange = (e) => {
-    setError('');
-    setCard(e.target.value);
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -420,6 +434,9 @@ function Pass(props) {
       }
     }
 
+    _checkGameOver(gameState);
+    selectCard('');
+    setError('');
     await firestore.collection('rooms').doc(roomId).update({
       'gameState': gameState,
     }).catch(err => {
@@ -428,14 +445,14 @@ function Pass(props) {
   }
   
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Pass {props.direciton}
-        <input type='text' required onChange={handleChange} />
-      </label>
-      <button type='submit'>Pass {props.direction}</button>
-      {error}
-    </form>
+    <div>
+      <div>
+        <button onClick={handleSubmit}>Pass {props.direction}</button>
+      </div>
+      <div>
+        <span>{error}</span>
+      </div>
+    </div>
   )
 }
 

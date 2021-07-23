@@ -2,12 +2,13 @@ import { useParams } from "react-router-dom";
 import { RoomContext } from "./RoomContext";
 import { useDocumentData } from 'react-firebase-hooks/firestore';
 import { auth, firestore } from "./Firebase";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Actions, needsAttention } from "./Actions";
 import 'tachyons/css/tachyons.css';
 import './style.css';
 import { addPlayerToRoom } from "./JoinRoom";
 import { getColorForFormula } from "./Colors";
+import { State } from "./State";
 
 function Room() {
   const { roomId } = useParams();
@@ -50,11 +51,13 @@ function Room() {
 
 function RoomDetails() {
   const { roomId, room } = useContext(RoomContext);
+  const { gameState } = room;
   const numFormulas = room.numPlayers === 7 ? 8 : 7;
   let exampleCards = [];
   for (let i = 0; i < numFormulas; ++i) {
     exampleCards.push(String.fromCharCode(65 + i));
   }
+  const notEnoughPlayers = room.players.length < room.numPlayers;
 
   return (
     <div className='gray'>
@@ -64,6 +67,16 @@ function RoomDetails() {
       <div className='flex mv2'>
         {exampleCards.map((card, idx) => <Card key={idx} card={card} />)}
       </div>
+      <div className='flex items-center'>
+        <div className='mh1'>Antidote: </div>{!notEnoughPlayers &&
+          <Card
+            card={
+              gameState.state === State.GAME_OVER ? 
+                String.fromCharCode(65 + gameState.antidote) + 'X' :
+                '??'
+            }
+          />}
+      </div>
     </div>
   )
 }
@@ -71,18 +84,21 @@ function RoomDetails() {
 function Board() {
   const myId = auth.currentUser.uid;
   const { room } = useContext(RoomContext);
-  const notEnoughtPlayers = room.players.length < room.numPlayers;
+  const notEnoughPlayers = room.players.length < room.numPlayers;
+
+  const [selectedCard, setSelectedCard] = useState('');
 
   return (
     <div>
-      { room.players.filter(p => p !== myId).map(p => <Player key={p} id={p} />)}
-      { notEnoughtPlayers && <NotEnoughPlayers />}
-      <p>----------------------------------------------</p>
-      <Player key={myId} id={myId} me />
-      { !notEnoughtPlayers &&
+      { !notEnoughPlayers && room.players.filter(p => p !== myId).map(p =>
+        <Player key={p} id={p} selectCard={setSelectedCard} selectedCard={selectedCard} />)}
+      { notEnoughPlayers && <NotEnoughPlayers />}
+      { !notEnoughPlayers && <p>----------------------------------------------</p> }
+      { !notEnoughPlayers && <Player key={myId} id={myId} me selectCard={setSelectedCard} selectedCard={selectedCard} /> }
+      { !notEnoughPlayers &&
         <div>
           <hr />
-          <Actions />
+          <Actions selectedCard={selectedCard} selectCard={setSelectedCard} />
         </div>
       }
     </div>
@@ -102,43 +118,58 @@ function NotEnoughPlayers() {
 }
 
 function Player(props) {
-  const { id, me } = props;
+  const { id, me, selectCard, selectedCard } = props;
   const { room } = useContext(RoomContext);
   const { gameState } = room;
-  const notEnoughtPlayers = room.players.length < room.numPlayers;
 
-  if (notEnoughtPlayers) {
-    return <div>Player {id}</div>
+  const handleClick = (myCards, where, card) => {
+    selectCard(selectedCard === card ? '' : card);
   }
 
   return (
     <div className='flex mv3'>
-      <div className='flex items-center mr2 w4.5'>
+      <div className='flex items-center mr2 w4.25'>
         { needsAttention(id) && "➤" }
         Player {id.length > 10 ? id.substring(0, 7) + '...' : id}
+      </div>
+      <div className='flex items-center mr2 w2.5'>
+        {gameState[id].point + (Math.abs(gameState[id].point) > 1 ? ' points' : ' point')}
       </div>
       <div className='flex br mh2 ph2'>
         {gameState[id].hand.map((card, idx) =>
           <Card key={idx} card={card}
             stack={!me && (idx < gameState[id].hand.length - 1)} back={!me}
+            handleClick={() => handleClick(me, 'hand', card)}
+            selected={card === selectedCard}
           />)}
       </div>
       <div className='flex br mh2 ph2'>
         {gameState[id].stage.map((card, idx) => 
-          <Card key={idx} card={card} back={!me} />)}
+          <Card key={idx} card={card} back={!me}
+            handleClick={() => handleClick(me, 'stage', card)}
+            selected={card === selectedCard}
+          />)}
       </div>
       <div className='flex mh2 ph2'>
-        {gameState[id].workstation.map((card, idx) => <Card key={idx} card={card} />)}
+        {gameState[id].workstation.map((card, idx) =>
+          <Card key={idx} card={card} back={!me && card.length > 1 && card[1] === 'X'}
+            handleClick={() => handleClick(me, 'workstation', card)}
+            selected={card === selectedCard}
+          />)}
       </div>
     </div>
   )
 }
 
 function Card(props) {
-  const { card, idx, stack, back } = props;
-  let cardClass = 'flex items-center justify-center br1 ba h2.5 w2.25 mr1 mr2-1 pointer'
+  let { card, idx, stack, back, handleClick, selected } = props;
+  const { roomId, room } = useContext(RoomContext);
+  const { gameState } = room;
+  if (gameState.state == State.GAME_OVER) back = false;
+  let cardClass = 'flex items-center justify-center br1 ba mr1 mr2-1 pointer'
   cardClass += back ? ' card-back' : ' card-front';
   cardClass += stack ? ' card-stack' : '';
+  cardClass += selected ? ' h3 w2.7' : ' h2.5 w2.25'
   const formula = card[0];
   const number = card.length > 1 ? card[1] : '';
   const isAntidote = 65 <= formula.charCodeAt(0) && formula.charCodeAt(0) <= 72;
@@ -148,7 +179,7 @@ function Card(props) {
     textShadow: 'rgb(255 255 255) -1px 1px 2px',
   };
   return (
-    <div className={cardClass} key={idx} style={cardStyle}>
+    <div className={cardClass} key={idx} style={cardStyle} onClick={handleClick}>
       <span className='b pre-line absolute f5'>{back ? '' : (
         isAntidote ? formula + number : formula + number
       )}</span>
