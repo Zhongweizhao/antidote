@@ -8,4 +8,8 @@ function isFormulaCard(card) {
     card.charCodeAt(1) >= 49 && card.charCodeAt(1) <= 55;
 }
 
-export { isValidCard, isFormulaCard };
+function isSyringeCard(card) {
+  return card.length === 2 && card[0] === 'S';
+}
+
+export { isValidCard, isFormulaCard, isSyringeCard };

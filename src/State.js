@@ -6,6 +6,7 @@ const State = {
   PASS_LEFT: 4,
   PASS_RIGHT: 5,
   GAME_OVER: 6,
+  PICK_SYRINGE: 7,
 };
 
 export { State };

@@ -1,11 +1,12 @@
 import { generateGameState } from "./GameState";
 
-async function addPlayerToRoom(roomRef, uid) {
+async function addPlayerToRoom(roomRef, uid, name) {
   const roomResp = await roomRef.get();
   if (!roomResp.exists) {        
     throw new Error("Invalid room.");
   }
   const room = roomResp.data();
+
   if (!room.players) room.players = [];
   let numPlayers = room.players.length;
   if (!room.players.includes(uid)) {
@@ -16,7 +17,11 @@ async function addPlayerToRoom(roomRef, uid) {
   }
   let updateDict = {};
   updateDict.players = room.players;
-  console.log(numPlayers, room.numPlayers);
+
+  if (!room.playerNames) room.playerNames = {};
+  room.playerNames[uid] = name;
+  updateDict.playerNames = room.playerNames;
+
   if (numPlayers === room.numPlayers) {
     updateDict.gameState = generateGameState(room.players);
   }

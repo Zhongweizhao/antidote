@@ -11,7 +11,7 @@ const Colors = [
 
 function getColorForFormula(formula) {
   const idx = formula.charCodeAt(0) - 65;
-  if (idx < Colors.length) {
+  if (idx >= 0 && idx < Colors.length) {
     return Colors[idx];
   }
   return '#FFFFFF';

@@ -90,13 +90,13 @@ async function _createRoom(numPlayers) {
   await roomRef.set({
     'numPlayers': numPlayers,
     'createdAt': firebase.firestore.FieldValue.serverTimestamp(),
+    'players': [],
   });
 
   return roomRef;
 }
 
 async function _joinRoom(roomRef, uid, history) {
-  await addPlayerToRoom(roomRef, uid);
   history.push('/' + roomRef.id);
 }
 
