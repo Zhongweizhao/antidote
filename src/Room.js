@@ -9,7 +9,7 @@ import './style.css';
 import { addPlayerToRoom } from "./JoinRoom";
 import { getColorForFormula } from "./Colors";
 import { State } from "./State";
-import { isValidCard } from "./Card";
+import { isSyringeCard, isValidCard } from "./Card";
 import { Logs } from './Logs';
 
 const buttonClass = 'f6 link bn pointer br3 bw1 ph3 pv2 ma2 dib white bg-dark-blue';
@@ -18,7 +18,6 @@ function Room() {
   const { roomId } = useParams();
   const roomRef = firestore.collection('rooms').doc(roomId);
   const [room, loading, error] = useDocumentData(roomRef);
-  const { uid } = auth.currentUser;
 
   // // player can use link to join the room. if they open the link but not in the
   // // room, try add them to the room
@@ -30,9 +29,9 @@ function Room() {
   //     <p>Joining...</p>
   //   )
   // }
-  console.log('player already in room');
+  // console.log('player already in room');
   return (
-    <div className='vh-100 dt w-100 bg-lightest-blue'>
+    <div className='vh-100 w-100 flex flex-column bg-lightest-blue'>
       {
         loading &&
         <p>Loading...</p>
@@ -47,7 +46,6 @@ function Room() {
           <div className=''>
             <RoomDetails />
             <Logs />
-            <hr /><hr />
             <Board />
           </div>
         </RoomContext.Provider>
@@ -57,7 +55,7 @@ function Room() {
 }
 
 function RoomDetails() {
-  const { roomId, room } = useContext(RoomContext);
+  const {  room } = useContext(RoomContext);
   const { gameState } = room;
   const numFormulas = room.numPlayers === 7 ? 8 : 7;
   let exampleCards = [];
@@ -67,23 +65,26 @@ function RoomDetails() {
   const notEnoughPlayers = room.players.length < room.numPlayers;
 
   return (
-    <div className='gray'>
-      <div>Room {roomId}</div>
+    <div className='pv2 ph6 ph1-m'>
+      <h1 className='f3'>Antidote</h1>
+      {/* <div>Room {roomId}</div>
       <div>{room.numPlayers} players game</div>
-      <div>Players: {room.players.join(', ')}</div>
+      <div>Players: {room.players.join(', ')}</div> */}
       <div className='flex mv2'>
         {exampleCards.map((card, idx) => <Card key={idx} card={card} />)}
       </div>
-      <div className='flex items-center'>
-        <div className='mh1'>Antidote: </div>{!notEnoughPlayers &&
-          <Card
-            card={
-              gameState.state === State.GAME_OVER ? 
-                String.fromCharCode(65 + gameState.antidote) + 'X' :
-                '??'
-            }
-          />}
-      </div>
+      {!notEnoughPlayers &&
+        <div className='flex items-center'>
+          <div className='mr1'>Shattered toxin container: </div>
+            <Card
+              card={
+                gameState.state === State.GAME_OVER ? 
+                  String.fromCharCode(65 + gameState.antidote) + 'X' :
+                  '??'
+              }
+            />
+        </div>
+      }
     </div>
   )
 }
@@ -95,14 +96,14 @@ function Board() {
 
   const [selectedCard, setSelectedCard] = useState('');
 
+  const playerInGame = room.players.includes(myId);
+
   return (
-    <div>
-      { !notEnoughPlayers && room.players.filter(p => p !== myId).map(p =>
-        <Player key={p} id={p} selectCard={setSelectedCard} selectedCard={selectedCard} />)}
+    <div className='pv1 ph1-m ph6'>
       { notEnoughPlayers && <NotEnoughPlayers />}
-      { !notEnoughPlayers && <p>----------------------------------------------</p> }
-      { !notEnoughPlayers && <Player key={myId} id={myId} me selectCard={setSelectedCard} selectedCard={selectedCard} /> }
-      { !notEnoughPlayers &&
+      { !notEnoughPlayers && room.players.map(p =>
+        <Player key={p} id={p} me={p === myId} selectCard={setSelectedCard} selectedCard={selectedCard} />)}
+      { !notEnoughPlayers && playerInGame &&
         <div>
           <Actions selectedCard={selectedCard} selectCard={setSelectedCard} />
         </div>
@@ -168,16 +169,28 @@ function Player(props) {
   }
 
   const playerName = room.playerNames[id];
+  const attention = needsAttention(id);
 
   return (
-    <div className='flex mv3'>
-      <div className='flex items-center mr2 w4.25'>
-        { needsAttention(id) && "➤" }
-        {playerName > 10 ? playerName.substring(0, 7) + '...' : playerName}
+    <div className='flex items-center pv3 bt '>
+      <div className='flex-column mr2 w4'>
+        {
+          attention && me &&
+          <span className='db dark-green'>
+            Your turn
+          </span>
+        }
+        <span className='db'>
+          <span className='dark-green'>{ attention && "➤ " }</span>
+          {playerName > 10 ? playerName.substring(0, 7) + '...' : playerName}
+        </span>
       </div>
-      <div className='flex items-center mr2 w2.5'>
-        {gameState[id].point + (Math.abs(gameState[id].point) > 1 ? ' points' : ' point')}
-      </div>
+      {
+        gameState.state === State.GAME_OVER &&
+        <div className='flex items-center mr2 w2.5'>
+          {gameState[id].point + (Math.abs(gameState[id].point) > 1 ? ' points' : ' point')}
+        </div>
+      }
       <div className='flex br mh2 ph2'>
         {gameState[id].hand.filter(isValidCard).map((card, idx) =>
           <Card key={idx} card={card}
@@ -206,23 +219,24 @@ function Player(props) {
 
 function Card(props) {
   let { card, idx, stack, back, handleClick, selected } = props;
-  const { roomId, room } = useContext(RoomContext);
+  const { room } = useContext(RoomContext);
   // game state is not always available here.firebase 
   const { gameState } = room;
-  if (gameState && gameState.state == State.GAME_OVER) back = false;
+  if (gameState && gameState.state === State.GAME_OVER) back = false;
   let cardClass = 'flex items-center justify-center br1 ba mr1 mr2-1 pointer'
   cardClass += back ? ' card-back' : ' card-front';
   cardClass += stack ? ' card-stack' : '';
-  cardClass += selected ? ' h3 w2.7' : ' h2.5 w2.25'
+  cardClass += selected ? ' h3 w2.7' : ' h2.5 w2.25';
+  let cardText = isSyringeCard(card) ? 'S' : card;
 
   const cardStyle = {
     background: back ? null : getColorForFormula(card),
-    textShadow: 'rgb(255 255 255) -1px 1px 2px',
+    // textShadow: 'rgb(255 255 255) -1px 1px 2px',
   };
   return (
     <div className={cardClass} key={idx} style={cardStyle} onClick={handleClick}>
       <span className='b pre-line absolute f5'>{back ? '' : (
-        card
+        cardText
       )}</span>
     </div>
   )

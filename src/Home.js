@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { Redirect, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { auth, firebase, firestore } from "./Firebase";
-import { State } from "./State";
 import 'tachyons/css/tachyons.css';
-import { addPlayerToRoom } from "./JoinRoom";
 
 const buttonClass = 'f6 link bn pointer br3 ma2 bw1 ph3 pv2 mb2 dib white bg-dark-blue';
 

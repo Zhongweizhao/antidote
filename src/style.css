@@ -7,4 +7,31 @@
 .w4\.5 { width: 12rem; }
 
 .card-stack { margin-right: -2.1rem }
-.card-back { background: linear-gradient(133deg, rgba(186,186,186,1) 0%, rgba(110,110,110,1) 100%) }
+.card-back { background: linear-gradient(133deg, rgb(224, 224, 224) 0%, rgb(167, 167, 167) 100%) }
+
+.logs {
+  line-height: 2.5ex;
+  height: 10ex;
+  overflow-y: scroll;
+}
+
+* ::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+@media screen and (min-width: 50em) {
+  /*
+   * Padding - Medium Screens
+   */
+  .ph6\.5-m {
+    padding-left: 10rem; padding-right: 10rem;
+  }
+
+  .pr6\.5-m {
+    padding-right: 10rem;
+  }
+}

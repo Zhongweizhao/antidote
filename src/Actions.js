@@ -1,16 +1,18 @@
 import { useContext, useState } from "react";
-import { isFormulaCard, isSyringeCard, isValidCard } from "./Card";
+import { isFormulaCard, isSyringeCard, isValidCard, shouldFaceDownInWorkstation } from "./Card";
 import { auth, firestore } from "./Firebase";
+import { addLog } from "./Logs";
 import { RoomContext } from "./RoomContext";
 import { State } from "./State";
 
 const buttonClass = 'f6 link bn pointer br3 ma1 bw1 ph3 pv2 dib white bg-dark-blue';
 
-function _checkGameOver(gameState) {
+function _checkGameOver(roomId, room, gameState) {
   let p = gameState.players[0];
   if (gameState[p].hand.length + gameState[p].stage.length > 1) return;
 
   gameState.state = State.GAME_OVER;
+  addLog(roomId, room, 'Game over!');
 
   gameState.players.forEach(player => {
     const lastCard = gameState[player].hand[0];
@@ -204,6 +206,7 @@ function Discard(props) {
     gameState[uid].stage.push(card);
 
     if (uid === gameState.players[gameState.turnOwnerIndex]) {
+      addLog(roomId, room, `${uid}: everyone pick a card to discard.`);
       gameState.state = State.DISCARD;
       gameState.numStageCardsRequired = 1;
     } else {
@@ -215,6 +218,12 @@ function Discard(props) {
       });
       if (everyoneDiscarded) {
         gameState.players.forEach(player => {
+          let cards = gameState[player].stage.map(card => {
+            // hide cards that should face down
+            if (shouldFaceDownInWorkstation(card)) return '**';
+            return card;
+          }).join(', ');
+          addLog(roomId, room, `${player} discarded ${cards}.`);
           gameState[player].workstation =
             gameState[player].workstation.concat(gameState[player].stage);
           gameState[player].stage = [];
@@ -225,7 +234,7 @@ function Discard(props) {
       }
     }
 
-    _checkGameOver(gameState);
+    _checkGameOver(roomId, room, gameState);
     selectCard('');
     setError('');
     await firestore.collection('rooms').doc(roomId).update({
@@ -246,6 +255,7 @@ function Discard(props) {
 
 async function _handleStartTradeSubmit(card, selectCard, setError, room, roomId, gameState, uid, turnOwner) {
   if (uid === turnOwner) {
+    addLog(roomId, room, `${uid}: someone trade card with me.`);
     gameState.state = State.TRADE_START;
     gameState.numStageCardsRequired = 1;
   } else {
@@ -263,8 +273,10 @@ async function _handleStartTradeSubmit(card, selectCard, setError, room, roomId,
     if (everyoneResponded) {
       gameState.numStageCardsRequired = 0;
       if (hasOffer) {
+        addLog(roomId, room, `${turnOwner}: picking a card to trade.`)
         gameState.state = State.TRADE_PICK;
       } else {
+        addLog(roomId, room, `${turnOwner}: no one wants to trade with me.`)
         gameState.state = State.TURN_START;
         // Everyone have their card back, turn owner unchanged.
         gameState.players.forEach(player => {
@@ -279,7 +291,7 @@ async function _handleStartTradeSubmit(card, selectCard, setError, room, roomId,
     }
   }
 
-  _checkGameOver(gameState);
+  _checkGameOver(roomId, room, gameState);
   selectCard('');
   setError('');
   await firestore.collection('rooms').doc(roomId).update({
@@ -306,6 +318,9 @@ function StartTrade(props) {
     }
     gameState[uid].hand.splice(index, 1);
     gameState[uid].stage.push(card);
+    if (uid !== turnOwner) {
+      addLog(roomId, room, `${uid}: I am willing to trade with you.`);
+    }
     await _handleStartTradeSubmit(card, selectCard, setError, room, roomId, gameState, uid, turnOwner);
   }
 
@@ -339,6 +354,9 @@ function DenyTrade(props) {
     // Push an invalid card to represent deny.
     for (let i = 0; i < gameState.numStageCardsRequired; ++i) {
       gameState[uid].stage.push('');
+    }
+    if (uid !== turnOwner) {
+      addLog(roomId, room, `${uid}: I don't want to trade with you.`);
     }
     await _handleStartTradeSubmit(card, selectCard, setError, room, roomId, gameState, uid, turnOwner);
   }
@@ -390,6 +408,7 @@ function PickTrade(props) {
         gameState[p].stage = [];
       }
     });
+    addLog(roomId, room, `${uid}: I am trading with ${player}.`);
     gameState[uid].hand = gameState[uid].hand.concat(gameState[player].stage);
     gameState[player].hand = gameState[player].hand.concat(gameState[uid].stage);
     gameState[uid].stage = [];
@@ -398,7 +417,7 @@ function PickTrade(props) {
     gameState.state = State.TURN_START;
     gameState.numStageCardsRequired = 0;
 
-    _checkGameOver(gameState);
+    _checkGameOver(roomId, room, gameState);
     selectCard('');
     setError('');
     await firestore.collection('rooms').doc(roomId).update({
@@ -410,6 +429,7 @@ function PickTrade(props) {
 
   const handleDeny = async (e) => {
     e.preventDefault();
+    addLog(roomId, room, `${uid}: I don't want to trade any more.`);
     // everyone have their card back
     gameState.players.forEach(p => {
       if (isValidCard(gameState[p].stage[0])) {
@@ -420,7 +440,7 @@ function PickTrade(props) {
     gameState.state = State.TURN_START;
     gameState.numStageCardsRequired = 0;
 
-    _checkGameOver(gameState);
+    _checkGameOver(roomId, room, gameState);
     selectCard('');
     setError('');
     await firestore.collection('rooms').doc(roomId).update({
@@ -459,6 +479,7 @@ function Pass(props) {
     gameState[uid].stage.push(card);
 
     if (uid === gameState.players[gameState.turnOwnerIndex]) {
+      addLog(roomId, room, `${uid}: everyone pick a card and pass to your ${props.direction}.`);
       gameState.state = passState;
       gameState.numStageCardsRequired = 1;
     } else {
@@ -469,6 +490,7 @@ function Pass(props) {
         }
       });
       if (everyonePassed) {
+        addLog(roomId, room, `Everyone has passed a card to the ${props.direction}.`);
         for (let i = 0; i < gameState.players.length; ++i) {
           let to, from;
           if (props.direction === 'left') {
@@ -488,7 +510,7 @@ function Pass(props) {
       }
     }
 
-    _checkGameOver(gameState);
+    _checkGameOver(roomId, room, gameState);
     selectCard('');
     setError('');
     await firestore.collection('rooms').doc(roomId).update({
@@ -529,9 +551,10 @@ function UseSyringe(props) {
 
     gameState[uid].hand.splice(index, 1);
     gameState[uid].stage.push(card);
+    addLog(roomId, room, `${uid}: I am using a syringe card.`);
     gameState.state = State.PICK_SYRINGE;
 
-    _checkGameOver(gameState);
+    _checkGameOver(roomId, room, gameState);
     selectCard('');
     setError('');
     await firestore.collection('rooms').doc(roomId).update({
@@ -568,7 +591,7 @@ function PickSyringe(props) {
       const workstationIndex = gameState[player].workstation.indexOf(card);
 
       if (handIndex >= 0) {
-        console.log(`player ${uid} is picking player ${player}'s hand's ${handIndex}th ${card}`)
+        addLog(roomId, room, `${uid}: I took a card from ${player}'s hand.`);
         // Cannot pick player's own card
         if (player === uid) {            
           setError('Cannot pick your own card.');
@@ -584,6 +607,11 @@ function PickSyringe(props) {
       }
 
       if (workstationIndex >= 0) {
+        if (shouldFaceDownInWorkstation(card)) {
+          addLog(roomId, room, `${uid}: I took a face-down card from ${player}'s workstation.`);
+        } else {
+          addLog(roomId, room, `${uid}: I took ${card} from ${player}'s workstation.`);
+        }
         find = true;
         gameState[player].workstation.splice(workstationIndex, 1);
         gameState[uid].hand.push(card);
@@ -604,7 +632,7 @@ function PickSyringe(props) {
     gameState.turnOwnerIndex = (gameState.turnOwnerIndex + 1) % gameState.players.length;
     gameState.numStageCardsRequired = 0;
 
-    _checkGameOver(gameState);
+    _checkGameOver(roomId, room, gameState);
     selectCard('');
     setError('');
     await firestore.collection('rooms').doc(roomId).update({
