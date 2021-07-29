@@ -154,7 +154,14 @@ function NotEnoughPlayers() {
       }
       <p>{room.players.length} / {room.numPlayers} joined</p>
 
-      <p>Share this game <a href={link}>{link}</a></p>
+      <p className='flex'>
+        <p>Share this game <a href={link}>{link}</a></p>
+        {
+          window.isSecureContext &&
+          <button className={buttonClass}
+            onClick={() => {navigator.clipboard.writeText(link)}}>Copy</button>
+        }
+      </p>
     </div>
   )
 }
