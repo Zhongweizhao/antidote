@@ -7,17 +7,53 @@ import { Actions, needsAttention } from "./Actions";
 import 'tachyons/css/tachyons.css';
 import './style.css';
 import { addPlayerToRoom } from "./JoinRoom";
-import { getColorForFormula } from "./Colors";
+// import { getColorForFormula } from "./Colors";
 import { State } from "./State";
-import { isSyringeCard, isValidCard } from "./Card";
+import { isFormulaCard, isSyringeCard, isToxinCard, isValidCard } from "./Card";
 import { Logs } from './Logs';
+import Modal from 'react-modal';
 
 const buttonClass = 'f6 link bn pointer br3 bw1 ph3 pv2 ma2 dib white bg-dark-blue';
+
+Modal.setAppElement('#root')
 
 function Room() {
   const { roomId } = useParams();
   const roomRef = firestore.collection('rooms').doc(roomId);
   const [room, loading, error] = useDocumentData(roomRef);
+  const [colorBlindOn, setColorBlind] = useState(false);
+  const [modalIsOpen, setIsOpen] = useState(false);
+
+  const customStyles = {
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+    },
+  };
+
+  const openModal = () => {
+    setIsOpen(true);
+  }
+
+  const afterOpenModal = () => {
+  }
+
+  const closeModal = () => {
+    setIsOpen(false);
+  }
+
+  const handleEnableColorBlind = () => {
+    setColorBlind(true);
+  }
+
+  const handleDisableColorBlind = () => {
+    setColorBlind(false);
+  }
+
 
   // // player can use link to join the room. if they open the link but not in the
   // // room, try add them to the room
@@ -31,7 +67,8 @@ function Room() {
   // }
   // console.log('player already in room');
   return (
-    <div className='vh-100 w-100 flex flex-column bg-lightest-blue'>
+    <div className='aspect-ratio--object'>
+    <div className='h-100 w-100 flex flex-column bg-lightest-blue'>
       {
         loading &&
         <p>Loading...</p>
@@ -42,31 +79,60 @@ function Room() {
       }
       {
         room && 
-        <RoomContext.Provider value={{roomId, room}}>
+        <RoomContext.Provider value={{roomId, room, colorBlindOn}}>
           <div className=''>
-            <RoomDetails />
+            <RoomDetails openModal={openModal} />
             <Logs />
             <Board />
+            <Modal
+              isOpen={modalIsOpen}
+              onAfterOpen={afterOpenModal}
+              onRequestClose={closeModal}
+              style={customStyles}
+            >
+              <div className='w6'>
+                <div onClick={closeModal} className='absolute right-1 top-1 pointer'>✖</div>
+                <div className='flex flex-column justify-center items-center w-100 h-100 pa2 z-10'>
+                  <div className='flex flex-column justify-center items-center'>
+                    <span className='f5 f4-l pre-line mb2 mb3-l'><b>Settings</b></span>
+                    <div className='flex items-center flex-wrap'>
+                      <label title='Color blind mode'>Color blind mode</label>
+                      <button
+                        onClick={handleEnableColorBlind}
+                        className={buttonClass}>Enable</button>
+                      <button
+                        onClick={handleDisableColorBlind}
+                        className={buttonClass}>Disable</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Modal>
           </div>
         </RoomContext.Provider>
       }
     </div>
+    </div>
   )
 }
 
-function RoomDetails() {
+function RoomDetails(props) {
   const {  room } = useContext(RoomContext);
   const { gameState } = room;
   const numFormulas = room.numPlayers === 7 ? 8 : 7;
   let exampleCards = [];
   for (let i = 0; i < numFormulas; ++i) {
-    exampleCards.push(String.fromCharCode(65 + i));
+    exampleCards.push(String.fromCharCode(65 + i) + 'X');
   }
   const notEnoughPlayers = room.players.length < room.numPlayers;
 
   return (
-    <div className='pv2 ph6 ph1-m'>
-      <h1 className='f3'>Antidote</h1>
+    <div className='pv2 ph1 ph6-l'>
+      <div className='flex justify-between items-center'>
+        <h1 className='f3'>Antidote</h1>
+        <div className='items-end f2 pointer'
+          onClick={() => props.openModal()}>≡</div>
+      </div>
       {/* <div>Room {roomId}</div>
       <div>{room.numPlayers} players game</div>
       <div>Players: {room.players.join(', ')}</div> */}
@@ -99,7 +165,7 @@ function Board() {
   const playerInGame = room.players.includes(myId);
 
   return (
-    <div className='pv1 ph1-m ph6'>
+    <div className='pv1 ph6-l ph1'>
       { notEnoughPlayers && <NotEnoughPlayers />}
       { !notEnoughPlayers && room.players.map(p =>
         <Player key={p} id={p} me={p === myId} selectCard={setSelectedCard} selectedCard={selectedCard} />)}
@@ -154,8 +220,8 @@ function NotEnoughPlayers() {
       }
       <p>{room.players.length} / {room.numPlayers} joined</p>
 
-      <p className='flex'>
-        <p>Share this game <a href={link}>{link}</a></p>
+      <p className='flex items-center'>
+        <span>Share this game <a href={link}>{link}</a></span>
         {
           window.isSecureContext &&
           <button className={buttonClass}
@@ -226,23 +292,26 @@ function Player(props) {
 
 function Card(props) {
   let { card, idx, stack, back, handleClick, selected } = props;
-  const { room } = useContext(RoomContext);
+  const { room, colorBlindOn } = useContext(RoomContext);
   // game state is not always available here.firebase 
   const { gameState } = room;
   if (gameState && gameState.state === State.GAME_OVER) back = false;
-  let cardClass = 'flex items-center justify-center br1 ba mr1 mr2-1 pointer'
+  let cardClass = 'flex justify-end br1 ba mr1 mr2-1 pointer'
   cardClass += back ? ' card-back' : ' card-front';
   cardClass += stack ? ' card-stack' : '';
   cardClass += selected ? ' h3 w2.7' : ' h2.5 w2.25';
+  cardClass += ((isFormulaCard(card) || isToxinCard(card)) && !back)
+    ? ' card-background card-background-' + card[0] : '';
   let cardText = isSyringeCard(card) ? 'S' : card;
+  cardText = ((isFormulaCard(card) || isToxinCard(card)) && !colorBlindOn) ? card[1] : cardText;
 
   const cardStyle = {
-    background: back ? null : getColorForFormula(card),
+    // background: back ? null : getColorForFormula(card, colorBlindOn),
     // textShadow: 'rgb(255 255 255) -1px 1px 2px',
   };
   return (
     <div className={cardClass} key={idx} style={cardStyle} onClick={handleClick}>
-      <span className='b pre-line absolute f5'>{back ? '' : (
+      <span className='b pre-line f5 pr0.5'>{back ? '' : (
         cardText
       )}</span>
     </div>

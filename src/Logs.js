@@ -33,7 +33,7 @@ function Logs() {
   //   await addLog(roomId, room, log);
   // }
   return (
-    <div className='pv1 ph6 ph1-m'>
+    <div className='pv1 ph1 ph6-l'>
       <div className='h4 overflow-y-scrol logs'>
       { logs &&
         logs.map(log => <Log log={log} key={log.createdAt}></Log>)

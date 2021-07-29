@@ -1,3 +1,11 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  -webkit-font-smoothing : antialiased;
+  background-color: #cdecff;
+}
+
 .h2\.5 { height: 3rem; }
 .w2\.25 { width: 2.5rem; }
 
@@ -5,6 +13,8 @@
 
 .w4\.25 { width: 10rem; }
 .w4\.5 { width: 12rem; }
+
+.pr0\.5 { padding-right: 0.1rem }
 
 .card-stack { margin-right: -2.1rem }
 .card-back { background: linear-gradient(133deg, rgb(224, 224, 224) 0%, rgb(167, 167, 167) 100%) }
@@ -34,4 +44,47 @@
   .pr6\.5-m {
     padding-right: 10rem;
   }
+}
+
+.card-background-A {
+  background-image: url(./img/1.png);
+}
+
+.card-background-B {
+  background-image: url(./img/2.png);
+}
+
+.card-background-C {
+  background-image: url(./img/3.png);
+}
+
+.card-background-D {
+  background-image: url(./img/4.png);
+}
+
+.card-background-E {
+  background-image: url(./img/5.png);
+}
+
+.card-background-F {
+  background-image: url(./img/6.png);
+}
+
+.card-background-G {
+  background-image: url(./img/7.png);
+}
+
+.card-background-H {
+  background-image: url(./img/8.png);
+}
+
+.card-background {
+  image-rendering: -webkit-optimize-contrast;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.ReactModal__Overlay--after-open {
+  z-index: 999;
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { auth, firebase, firestore } from "./Firebase";
-import 'tachyons/css/tachyons.css';
+import 'tachyons/css/tachyons.min.css';
 
 const buttonClass = 'f6 link bn pointer br3 ma2 bw1 ph3 pv2 mb2 dib white bg-dark-blue';
 
