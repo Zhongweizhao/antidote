@@ -104,9 +104,6 @@ function Room() {
                         onClick={handleDisableColorBlind}
                         className={buttonClass}>Disable</button>
                     </div>
-                    <button
-                      onClick={() => {let a = {}; a.f();}}
-                      className={buttonClass}>Disable</button>
                   </div>
                 </div>
               </div>
