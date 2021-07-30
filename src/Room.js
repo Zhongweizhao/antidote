@@ -104,6 +104,9 @@ function Room() {
                         onClick={handleDisableColorBlind}
                         className={buttonClass}>Disable</button>
                     </div>
+                    <button
+                      onClick={() => {let a = {}; a.f();}}
+                      className={buttonClass}>Disable</button>
                   </div>
                 </div>
               </div>
@@ -212,7 +215,7 @@ function NotEnoughPlayers() {
         <div>
           <p>Choose your player name</p>
           <form>
-            <input className='input-reset br3 ba b--black-20 pa2 mv2 dib w-20 h2 mr2' type='text' required onChange={handleChange} />
+            <input autoFocus className='input-reset br3 ba b--black-20 pa2 mv2 dib w-20 h2 mr2' type='text' required onChange={handleChange} />
             <button type='submit' className={buttonClass} onClick={handleSubmit}>Join</button>
             <span className='mh2'>{error}</span>
           </form>
