@@ -246,6 +246,7 @@ function Discard(props) {
     e.preventDefault();
 
     try {
+      let newGameState, logs;
       await firestore.runTransaction(async transaction => {
         let roomRef = firestore.collection('rooms').doc(roomId);
         const roomDoc = await transaction.get(roomRef);
@@ -253,15 +254,14 @@ function Discard(props) {
           throw new Error("Document does not exists.");
         }
 
-        let { newGameState, logs } = _handleDiscard(gameState, uid, card);
+        ({ newGameState, logs } = _handleDiscard(gameState, uid, card));
         transaction.update(roomRef, { 'gameState': newGameState });
-
-        logs.forEach(log => {
-          addLog(roomId, room, log);
-        });
-        selectCard('');
-        setError('');
       });
+      logs.forEach(log => {
+        addLog(roomId, room, log);
+      });
+      selectCard('');
+      setError('');
     } catch (err) {
       setError(err.toString());
     }
@@ -361,6 +361,7 @@ function StartTrade(props) {
     e.preventDefault();
 
     try {
+      let newGameState, logs;
       await firestore.runTransaction(async transaction => {
         let roomRef = firestore.collection('rooms').doc(roomId);
         const roomDoc = await transaction.get(roomRef);
@@ -368,15 +369,14 @@ function StartTrade(props) {
           throw new Error("Document does not exists.");
         }
 
-        let { newGameState, logs } = _handleStartTrade(gameState, uid, card, /* isDeny */ false);
+        ({ newGameState, logs } = _handleStartTrade(gameState, uid, card, /* isDeny */ false));
         transaction.update(roomRef, { 'gameState': newGameState });
-
-        logs.forEach(log => {
-          addLog(roomId, room, log);
-        });
-        selectCard('');
-        setError('');
       });
+      logs.forEach(log => {
+        addLog(roomId, room, log);
+      });
+      selectCard('');
+      setError('');
     } catch (err) {
       setError(err.toString());
     }
@@ -401,6 +401,7 @@ function DenyTrade(props) {
     e.preventDefault();
 
     try {
+      let newGameState, logs;
       await firestore.runTransaction(async transaction => {
         let roomRef = firestore.collection('rooms').doc(roomId);
         const roomDoc = await transaction.get(roomRef);
@@ -408,15 +409,14 @@ function DenyTrade(props) {
           throw new Error("Document does not exists.");
         }
 
-        let { newGameState, logs } = _handleStartTrade(gameState, uid, card, /* isDeny */ true);
+        ({ newGameState, logs } = _handleStartTrade(gameState, uid, card, /* isDeny */ true));
         transaction.update(roomRef, { 'gameState': newGameState });
-
-        logs.forEach(log => {
-          addLog(roomId, room, log);
-        });
-        selectCard('');
-        setError('');
       });
+      logs.forEach(log => {
+        addLog(roomId, room, log);
+      });
+      selectCard('');
+      setError('');
     } catch (err) {
       setError(err.toString());
     }
@@ -508,6 +508,7 @@ function PickTrade(props) {
     e.preventDefault();
 
     try {
+      let newGameState, logs;
       await firestore.runTransaction(async transaction => {
         let roomRef = firestore.collection('rooms').doc(roomId);
         const roomDoc = await transaction.get(roomRef);
@@ -515,15 +516,14 @@ function PickTrade(props) {
           throw new Error("Document does not exists.");
         }
 
-        let { newGameState, logs } = _handlePickTrade(gameState, uid, card);
+        ({ newGameState, logs } = _handlePickTrade(gameState, uid, card));
         transaction.update(roomRef, { 'gameState': newGameState });
-
-        logs.forEach(log => {
-          addLog(roomId, room, log);
-        });
-        selectCard('');
-        setError('');
       });
+      logs.forEach(log => {
+        addLog(roomId, room, log);
+      });
+      selectCard('');
+      setError('');
     } catch (err) {
       setError(err.toString());
     }
@@ -533,6 +533,7 @@ function PickTrade(props) {
     e.preventDefault();
 
     try {
+      let newGameState, logs;
       await firestore.runTransaction(async transaction => {
         let roomRef = firestore.collection('rooms').doc(roomId);
         const roomDoc = await transaction.get(roomRef);
@@ -540,15 +541,14 @@ function PickTrade(props) {
           throw new Error("Document does not exists.");
         }
 
-        let { newGameState, logs } = _handlePickTradeCancel(gameState, uid, card);
+        ({ newGameState, logs } = _handlePickTradeCancel(gameState, uid, card));
         transaction.update(roomRef, { 'gameState': newGameState });
-
-        logs.forEach(log => {
-          addLog(roomId, room, log);
-        });
-        selectCard('');
-        setError('');
       });
+      logs.forEach(log => {
+        addLog(roomId, room, log);
+      });
+      selectCard('');
+      setError('');
     } catch (err) {
       setError(err.toString());
     }
@@ -623,6 +623,7 @@ function Pass(props) {
     e.preventDefault();
 
     try {
+      let newGameState, logs;
       await firestore.runTransaction(async transaction => {
         let roomRef = firestore.collection('rooms').doc(roomId);
         const roomDoc = await transaction.get(roomRef);
@@ -630,15 +631,14 @@ function Pass(props) {
           throw new Error("Document does not exists.");
         }
 
-        let { newGameState, logs } = _handlePass(gameState, uid, card, props.direction);
+        ({ newGameState, logs } = _handlePass(gameState, uid, card, props.direction));
         transaction.update(roomRef, { 'gameState': newGameState });
-
-        logs.forEach(log => {
-          addLog(roomId, room, log);
-        });
-        selectCard('');
-        setError('');
       });
+      logs.forEach(log => {
+        addLog(roomId, room, log);
+      });
+      selectCard('');
+      setError('');
     } catch (err) {
       setError(err.toString());
     }
@@ -687,6 +687,7 @@ function UseSyringe(props) {
     e.preventDefault();
 
     try {
+      let newGameState, logs;
       await firestore.runTransaction(async transaction => {
         let roomRef = firestore.collection('rooms').doc(roomId);
         const roomDoc = await transaction.get(roomRef);
@@ -694,15 +695,14 @@ function UseSyringe(props) {
           throw new Error("Document does not exists.");
         }
 
-        let { newGameState, logs } = _handleUseSyringe(gameState, uid, card);
+        ({ newGameState, logs } = _handleUseSyringe(gameState, uid, card));
         transaction.update(roomRef, { 'gameState': newGameState });
-
-        logs.forEach(log => {
-          addLog(roomId, room, log);
-        });
-        selectCard('');
-        setError('');
       });
+      logs.forEach(log => {
+        addLog(roomId, room, log);
+      });
+      selectCard('');
+      setError('');
     } catch (err) {
       setError(err.toString());
     }
@@ -785,6 +785,7 @@ function PickSyringe(props) {
     e.preventDefault();
 
     try {
+      let newGameState, logs;
       await firestore.runTransaction(async transaction => {
         let roomRef = firestore.collection('rooms').doc(roomId);
         const roomDoc = await transaction.get(roomRef);
@@ -792,15 +793,14 @@ function PickSyringe(props) {
           throw new Error("Document does not exists.");
         }
 
-        let { newGameState, logs } = _handlePickSyringe(gameState, uid, card);
+        ({ newGameState, logs } = _handlePickSyringe(gameState, uid, card));
         transaction.update(roomRef, { 'gameState': newGameState });
-
-        logs.forEach(log => {
-          addLog(roomId, room, log);
-        });
-        selectCard('');
-        setError('');
       });
+      logs.forEach(log => {
+        addLog(roomId, room, log);
+      });
+      selectCard('');
+      setError('');
     } catch (err) {
       setError(err.toString());
     }
