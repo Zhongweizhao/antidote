@@ -10,6 +10,11 @@ function myRandom() {
   return random.float(0, 1);
 }
 
+// [min, max]
+function randInt(min, max) {
+  return random.int(min, max);
+}
+
 function generateFormulaCards(gameState) {
   const numPlayers = gameState.players.length;
 
@@ -107,4 +112,4 @@ function generateGameState(players) {
   return gameState;
 }
 
-export { generateGameState };
+export { generateGameState, randInt };

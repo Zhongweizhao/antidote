@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { isFormulaCard, isSyringeCard, isValidCard, shouldFaceDownInWorkstation } from "./Card";
 import { auth, firestore } from "./Firebase";
+import { randInt } from "./GameState";
 import { addLog } from "./Logs";
 import { RoomContext } from "./RoomContext";
 import { State } from "./State";
@@ -735,8 +736,12 @@ function _handlePickSyringe(gameState, uid, card) {
       }
       logs.push(`${uid}: I took a card from ${player}'s hand.`);
       find = true;
-      gameState[player].hand.splice(handIndex, 1);
-      gameState[uid].hand.push(card);
+
+      // We want to choose a random card from `player`'s hand.
+      let randomIndex = randInt(0, gameState[player].hand.length - 1);
+      gameState[uid].hand.push(gameState[player].hand[randomIndex]);
+      gameState[player].hand.splice(randomIndex, 1);
+
       // the syringe card goes to player's hand
       gameState[player].hand = gameState[player].hand.concat(gameState[uid].stage);
       gameState[uid].stage = [];
