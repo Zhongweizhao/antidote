@@ -264,7 +264,7 @@ function Player(props) {
           {gameState[id].point + (Math.abs(gameState[id].point) > 1 ? ' points' : ' point')}
         </div>
       }
-      <div className='flex br mh2 ph2'>
+      <div className='flex br mh2 ph2 items-center'>
         {gameState[id].hand.filter(isValidCard).map((card, idx) =>
           <Card key={idx} card={card}
             stack={!me && (idx < gameState[id].hand.length - 1)} back={!me}
@@ -272,14 +272,14 @@ function Player(props) {
             selected={card === selectedCard}
           />)}
       </div>
-      <div className='flex br mh2 ph2'>
+      <div className='flex br mh2 ph2 items-center'>
         {gameState[id].stage.filter(isValidCard).map((card, idx) => 
           <Card key={idx} card={card} back={!me}
             handleClick={() => handleClick(me, 'stage', card)}
             selected={card === selectedCard}
           />)}
       </div>
-      <div className='flex mh2 ph2'>
+      <div className='flex mh2 ph2 items-center'>
         {gameState[id].workstation.filter(isValidCard).map((card, idx) =>
           <Card key={idx} card={card} back={!me && card.length > 1 && card[1] === 'X'}
             handleClick={() => handleClick(me, 'workstation', card)}
@@ -300,7 +300,7 @@ function Card(props) {
   cardClass += back ? ' card-back' : ' card-front';
   cardClass += stack ? ' card-stack' : '';
   cardClass += selected ? ' h3 w2.7' : ' h2.5 w2.25';
-  cardClass += ((isFormulaCard(card) || isToxinCard(card)) && !back)
+  cardClass += ((isFormulaCard(card) || isToxinCard(card) || isSyringeCard(card)) && !back)
     ? ' card-background card-background-' + card[0] : '';
   let cardText = isSyringeCard(card) ? 'S' : card;
   cardText = ((isFormulaCard(card) || isToxinCard(card)) && !colorBlindOn) ? card[1] : cardText;

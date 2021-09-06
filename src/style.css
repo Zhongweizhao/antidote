@@ -78,6 +78,10 @@ body {
   background-image: url(./img/8.png);
 }
 
+.card-background-S {
+  background-image: url(./img/S.png);
+}
+
 .card-background {
   image-rendering: -webkit-optimize-contrast;
   background-size: contain;
