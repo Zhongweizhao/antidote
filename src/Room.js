@@ -246,21 +246,21 @@ function Player(props) {
 
   return (
     <div className='flex items-center pv3 bt '>
-      <div className='flex-column mr2 w4'>
+      <div className={'flex-column mr2 w3.5 flex-no-shrink' + (me ? ' b' : '')}>
         {
           attention && me &&
-          <span className='db dark-green'>
+          <span className='db dark-green b'>
             Your turn
           </span>
         }
-        <span className='db'>
+        <span className='db break-word'>
           <span className='dark-green'>{ attention && "➤ " }</span>
           {playerName > 10 ? playerName.substring(0, 7) + '...' : playerName}
         </span>
       </div>
       {
         gameState.state === State.GAME_OVER &&
-        <div className='flex items-center mr2 w2.5'>
+        <div className='flex items-center mr2 w3 flex-no-shrink flex-no-grow'>
           {gameState[id].point + (Math.abs(gameState[id].point) > 1 ? ' points' : ' point')}
         </div>
       }

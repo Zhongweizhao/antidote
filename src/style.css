@@ -8,13 +8,19 @@ body {
 
 .h2\.5 { height: 3rem; }
 .w2\.25 { width: 2.5rem; }
+.w2\.5 { width: 3rem; }
 
 .w2\.7 { width: 3.33rem; }
 
+.w3\.5 { width: 6rem; }
 .w4\.25 { width: 10rem; }
 .w4\.5 { width: 12rem; }
 
 .pr0\.5 { padding-right: 0.1rem }
+
+.flex-no-shrink { flex-shrink: 0 }
+.flex-no-grow { flex-grow: 0 }
+.break-word { overflow-wrap: break-word }
 
 .card-stack { margin-right: -2.1rem }
 .card-back { background: linear-gradient(133deg, rgb(224, 224, 224) 0%, rgb(167, 167, 167) 100%) }
