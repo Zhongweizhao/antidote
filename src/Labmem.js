@@ -39,6 +39,19 @@ function getLabmem(name, uid) {
   return labmem;
 }
 
+function getAllLabmem() {
+  return [
+    Labmem001.name(),
+    Labmem002.name(),
+    Labmem003.name(),
+    Labmem004.name(),
+    Labmem005.name(),
+    Labmem006.name(),
+    Labmem007.name(),
+    Labmem011.name(),
+  ];
+}
+
 class Labmem {
   setUid(uid) { this.uid = uid; }
 
@@ -399,4 +412,4 @@ class Labmem007 extends Labmem {
   }
 }
 
-export { getLabmem };
+export { getLabmem, getAllLabmem };

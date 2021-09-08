@@ -156,6 +156,15 @@ function _canPickSyringe(uid) {
   return turnOwner === uid && gameState.state === State.PICK_SYRINGE;
 }
 
+function _canGetLabmem(uid) {
+  const { room } = useContext(RoomContext);
+  const { gameState } = room;
+  const turnOwner = gameState.players[gameState.turnOwnerIndex];
+
+  return turnOwner === uid && gameState.state === State.TURN_START &&
+    gameState[uid].labmem === "";
+}
+
 function needsAttention(uid) {
   return _canDiscard(uid)
     || _canStartTrade(uid)
@@ -164,7 +173,8 @@ function needsAttention(uid) {
     || _canPassLeft(uid)
     || _canPassRight(uid)
     || _canUseSyringe(uid)
-    || _canPickSyringe(uid);
+    || _canPickSyringe(uid)
+    || _canGetLabmem(uid);
 }
 
 function Actions(props) {
@@ -183,6 +193,7 @@ function Actions(props) {
         {_canPassRight(uid) && <Pass direction='right' card={selectedCard} selectCard={selectCard} setError={setError} />}
         {_canUseSyringe(uid) && <UseSyringe card={selectedCard} selectCard={selectCard} setError={setError} />}
         {_canPickSyringe(uid) && <PickSyringe card={selectedCard} selectCard={selectCard} setError={setError} />}
+        {_canGetLabmem(uid) && <GetLabmem setError={setError} />}
       </div>
       {error}
     </div>
@@ -815,6 +826,63 @@ function PickSyringe(props) {
     <div>
       <div>
         <button className={buttonClass} onClick={handleSubmit}>Use Syringe</button>
+      </div>
+    </div>
+  )
+}
+
+function _handleGetLabmem(gameState, uid) {
+  let logs = [];
+
+  logs.push(`${uid} got a Lab member card.`);
+  let randomIndex = randInt(0, gameState.labmem.length - 1);
+  gameState[uid].labmem = gameState.labmem[randomIndex];
+  gameState.labmem.splice(randomIndex, 1);
+
+  gameState.state = State.TURN_START;
+  gameState.turnOwnerIndex = (gameState.turnOwnerIndex + 1) % gameState.players.length;
+  gameState.numStageCardsRequired = 0;
+
+  return {
+    newGameState: gameState,
+    logs,
+  };
+}
+
+function GetLabmem(props) {
+  const { setError } = props;
+  const { room, roomId } = useContext(RoomContext);
+  let { gameState } = room;
+  const { uid } = auth.currentUser;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      let newGameState, logs;
+      await firestore.runTransaction(async transaction => {
+        let roomRef = firestore.collection('rooms').doc(roomId);
+        const roomDoc = await transaction.get(roomRef);
+        if (!roomDoc.exists) {
+          throw new Error("Document does not exists.");
+        }
+
+        ({ newGameState, logs } = _handleGetLabmem(gameState, uid));
+        transaction.update(roomRef, { 'gameState': newGameState });
+      });
+      logs.forEach(log => {
+        addLog(roomId, room, log);
+      });
+      setError('');
+    } catch (err) {
+      setError(err.toString());
+    }
+  }
+
+  return (
+    <div>
+      <div>
+        <button className={buttonClass} onClick={handleSubmit}>Get Labmem Card</button>
       </div>
     </div>
   )

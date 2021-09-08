@@ -1,5 +1,6 @@
 import { State } from "./State";
 import random from "random";
+import { getAllLabmem } from "./Labmem";
 
 const Shuffle = require('shuffle');
 const seedrandom = require('seedrandom');
@@ -98,6 +99,7 @@ function generateGameState(players) {
     cardsPerFomula,
     numSyringes,
     handSize,
+    labmem: getAllLabmem(),
   };
   let { hands, antidote } = generateFormulaCards(gameState);
   players.forEach((player, idx) => {      
@@ -106,6 +108,7 @@ function generateGameState(players) {
       stage: [],
       workstation: [],
       point: 0,
+      labmem: "",
     };
   });
   gameState.antidote = antidote;

@@ -246,6 +246,11 @@ function Player(props) {
 
   return (
     <div className='flex items-center pv3 bt '>
+      <div className='flex-column w1.5 flex-no-shrink'>
+        {gameState[id].labmem !== "" &&
+          <span className='db'>&#128100;</span>
+        }
+      </div>
       <div className={'flex-column mr2 w3.5 flex-no-shrink' + (me ? ' b' : '')}>
         {
           attention && me &&
