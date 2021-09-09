@@ -10,6 +10,9 @@ body {
 .w2\.25 { width: 2.5rem; }
 .w1\.5 { width: 1.5rem; }
 .w2\.5 { width: 3rem; }
+.w0 { width: 0rem; }
+.w6 { width: 20rem; }
+.w8 { width: 50rem; }
 
 .w2\.7 { width: 3.33rem; }
 
@@ -25,6 +28,14 @@ body {
 
 .card-stack { margin-right: -2.1rem }
 .card-back { background: linear-gradient(133deg, rgb(224, 224, 224) 0%, rgb(167, 167, 167) 100%) }
+
+.bt--dashed { 
+  border-top-width: 1px;
+  border-left-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-style: dashed;
+}
 
 .logs {
   line-height: 2.5ex;
@@ -89,6 +100,46 @@ body {
   background-image: url(./img/S.png);
 }
 
+.labmem-background-1 {
+  background-image: url(./img/labmem1.jpg);
+}
+
+.labmem-background-2 {
+  background-image: url(./img/labmem2.jpg);
+}
+
+.labmem-background-3 {
+  background-image: url(./img/labmem3.jpg);
+}
+
+.labmem-background-4 {
+  background-image: url(./img/labmem4.jpg);
+}
+
+.labmem-background-5 {
+  background-image: url(./img/labmem5.jpg);
+}
+
+.labmem-background-6 {
+  background-image: url(./img/labmem6.jpg);
+}
+
+.labmem-background-7 {
+  background-image: url(./img/labmem7.jpg);
+}
+
+.labmem-background-8 {
+  background-image: url(./img/labmem8.jpg);
+}
+
+.labmem-background {
+  image-rendering: -webkit-optimize-contrast;
+  background-size: cover;
+  background-position: top;
+  background-repeat: no-repeat;
+  box-shadow: 0 0 2px 2px #cdecff inset
+}
+
 .card-background {
   image-rendering: -webkit-optimize-contrast;
   background-size: contain;
@@ -98,4 +149,9 @@ body {
 
 .ReactModal__Overlay--after-open {
   z-index: 999;
+}
+
+.labmem-description p {
+  margin-block-start: 0.25em;
+  margin-block-end: 0.25em;
 }

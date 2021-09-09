@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { isFormulaCard, isSyringeCard, isValidCard, shouldFaceDownInWorkstation } from "./Card";
 import { auth, firestore } from "./Firebase";
 import { randInt } from "./GameState";
+import { getLabmem } from "./Labmem";
 import { addLog } from "./Logs";
 import { RoomContext } from "./RoomContext";
 import { State } from "./State";
@@ -16,11 +17,16 @@ function _checkGameOver(gameState, logs) {
   logs.push('Game over!');
 
   gameState.players.forEach(player => {
-    const lastCard = gameState[player].hand[0];
-    const formula = lastCard.charCodeAt(0) - 65;
-    let point = isFormulaCard(lastCard) ? lastCard.charCodeAt(1) - 48 : 1;
-    const matchesAntidote = formula === gameState.antidote;
-    gameState[player].point += matchesAntidote ? point : -point;
+    if (gameState[player].labmem) {
+      let labmem = getLabmem(gameState[player].labmem, player);
+      gameState[player].point = labmem.calculateScore(gameState);
+    } else {
+      const lastCard = gameState[player].hand[0];
+      const formula = lastCard.charCodeAt(0) - 65;
+      let point = isFormulaCard(lastCard) ? lastCard.charCodeAt(1) - 48 : 1;
+      const matchesAntidote = formula === gameState.antidote;
+      gameState[player].point += matchesAntidote ? point : -point;
+    }
   });
   return;
 }

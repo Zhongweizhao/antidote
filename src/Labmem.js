@@ -4,7 +4,7 @@
  * Labmem No.001: 冈部伦太郎
  * Labmem No.004: 牧濑红莉栖
  * Labmem No.003: 桥田至
- * Labmem No.011: 阿万音由季
+ * Labmem No.008: 阿万音铃羽
  * Labmem No.002: 椎名真由理
  * Labmem No.005: 桐生萌郁
  * Labmem No.006: 漆原琉华
@@ -30,8 +30,8 @@ function getLabmem(name, uid) {
     labmem = new Labmem006();
   } else if (name === Labmem007.name()) {
     labmem = new Labmem007();
-  } else if (name === Labmem011.name()) {
-    labmem = new Labmem011();
+  } else if (name === Labmem008.name()) {
+    labmem = new Labmem008();
   } else {
     throw new Error("invalid labmem name");
   }
@@ -48,7 +48,7 @@ function getAllLabmem() {
     Labmem005.name(),
     Labmem006.name(),
     Labmem007.name(),
-    Labmem011.name(),
+    Labmem008.name(),
   ];
 }
 
@@ -83,14 +83,15 @@ class Labmem {
 
 class Labmem001 extends Labmem {
   static name() { return 'Labmem No.001'; }
+  static id() { return 1; }
 
   static description() {
-    return ```
-      <b>Objective:</b> Both you and the player below you drink the antidote.
-      <b>If successful:</b> You live! Add the points on the final card of the player below
-      you to your score for the round.
-      <b>If unsuccessful:</b> You die (either from the toxin or from a broken heart).
-    ```;
+    return `
+      <p><b>Objective:</b> Both you and the player below you drink the antidote.</p>
+      <p><b>If successful:</b> You live! Add the points on the final card of the player below
+      you to your score for the round.</p>
+      <p><b>If unsuccessful:</b> You die (either from the toxin or from a broken heart).</p>
+    `;
   }
 
   calculateScore(gameState) {
@@ -115,14 +116,15 @@ class Labmem001 extends Labmem {
 
 class Labmem004 extends Labmem {
   static name() { return 'Labmem No.004'; }
+  static id() { return 4; }
 
   static description() {
-    return ```
-      <b>Objective:</b> Both you and the player above you drink the antidote.
-      <b>If successful:</b> You live! Add the points on the final card of the player above 
-      you to your score for the round.
-      <b>If unsuccessful:</b> You die (either from the toxin or from a broken heart).
-    ```;
+    return `
+      <p><b>Objective:</b> Both you and the player above you drink the antidote.</p>
+      <p><b>If successful:</b> You live! Add the points on the final card of the player above 
+      you to your score for the round.</p>
+      <p><b>If unsuccessful:</b> You die (either from the toxin or from a broken heart).</p>
+    `;
   }
 
   calculateScore(gameState) {
@@ -147,14 +149,15 @@ class Labmem004 extends Labmem {
 
 class Labmem003 extends Labmem {
   static name() { return 'Labmem No.003'; }
+  static id() { return 3; }
 
   static description() {
-    return ```
-      <b>Objective:</b> The player below you's final card is the antidote.
-      <b>If successful:</b> The player below you shares the antidote with
-      you to drink and you live! Earn the points on their final card x2.
-      <b>If unsuccessful:</b> Drink the formula on their final card. You die!
-    ```;
+    return `
+      <p><b>Objective:</b> The player below you's final card is the antidote.</p>
+      <p><b>If successful:</b> The player below you shares the antidote with
+      you to drink and you live! Earn the points on their final card x2.</p>
+      <p><b>If unsuccessful:</b> Drink the formula on their final card. You die!</p>
+    `;
   }
 
   calculateScore(gameState) {
@@ -177,16 +180,17 @@ class Labmem003 extends Labmem {
   }
 }
 
-class Labmem011 extends Labmem {
-  static name() { return 'Labmem No.011'; }
+class Labmem008 extends Labmem {
+  static name() { return 'Labmem No.008'; }
+  static id() { return 8; }
 
   static description() {
-    return ```
-      <b>Objective:</b> The player above you's final card is the antidote.
-      <b>If successful:</b> The player above you shares the antidote with
-      you to drink and you live! Earn the points on their final card x2.
-      <b>If unsuccessful:</b> Drink the formula on their final card. You die!
-    ```;
+    return `
+      <p><b>Objective:</b> The player above you's final card is the antidote.</p>
+      <p><b>If successful:</b> The player above you shares the antidote with
+      you to drink and you live! Earn the points on their final card x2.</p>
+      <p><b>If unsuccessful:</b> Drink the formula on their final card. You die!</p>
+    `;
   }
 
   calculateScore(gameState) {
@@ -211,15 +215,16 @@ class Labmem011 extends Labmem {
 
 class Labmem002 extends Labmem {
   static name() { return 'Labmem No.002'; }
+  static id() { return 2; }
 
   static description() {
-    return ```
-      <b>Objective:</b> Drink the antidote.
-      <b>If successful:</b> You live! Earn an additional 1 point for every other
-      player who also drank the antidote.
-      <b>If unsuccessful:</b> You die! Lose an additional 1 point for every
-      other player who did not drink the antidote.
-    ```;
+    return `
+      <p><b>Objective:</b> Drink the antidote.</p>
+      <p><b>If successful:</b> You live! Earn an additional 1 point for every other
+      player who also drank the antidote.</p>
+      <p><b>If unsuccessful:</b> You die! Lose an additional 1 point for every
+      other player who did not drink the antidote.</p>
+    `;
   }
 
   calculateScore(gameState) {
@@ -257,15 +262,16 @@ class Labmem002 extends Labmem {
 
 class Labmem005 extends Labmem {
   static name() { return 'Labmem No.005'; }
+  static id() { return 5; }
 
   static description() {
-    return ```
-      <b>Objective:</b> Drink the antidote.
-      <b>If successful:</b> You live! Earn an additional 1 point for every other
-      player who did not drink the antidote.
-      <b>If unsuccessful:</b> You die. Lose an additional 1 point for every
-      other player who drank the antidote.
-    ```;
+    return `
+      <p><b>Objective:</b> Drink the antidote.</p>
+      <p><b>If successful:</b> You live! Earn an additional 1 point for every other
+      player who did not drink the antidote.</p>
+      <p><b>If unsuccessful:</b> You die. Lose an additional 1 point for every
+      other player who drank the antidote.</p>
+    `;
   }
 
   calculateScore(gameState) {
@@ -303,15 +309,16 @@ class Labmem005 extends Labmem {
 
 class Labmem006 extends Labmem {
   static name() { return 'Labmem No.006'; }
+  static id() { return 6; }
 
   static description() {
-    return ```
-      <b>Objective:</b> You and at least one other player drink the antidote.
-      <b>If successful:</b> You live! If only one other player also lives, gain
-      +1 point per player in the game.
-      <b>If unsuccessful:</b> You die! (Either from the toxin or from shame &
-      remorse).
-    ```;
+    return `
+      <p><b>Objective:</b> You and at least one other player drink the antidote.</p>
+      <p><b>If successful:</b> You live! If only one other player also lives, gain
+      +1 point per player in the game.</p>
+      <p><b>If unsuccessful:</b> You die! (Either from the toxin or from shame &
+      remorse).</p>
+    `;
   }
 
   calculateScore(gameState) {
@@ -346,16 +353,17 @@ class Labmem006 extends Labmem {
 
 class Labmem007 extends Labmem {
   static name() { return 'Labmem No.007'; }
+  static id() { return 7; }
 
   static description() {
-    return ```
-      <b>Objective:</b> The antidote is in your workstation at game end.
-      <b>If successful:</b> Drink the antidote in your workstation and live!
+    return `
+      <p><b>Objective:</b> The antidote is in your workstation at game end.</p>
+      <p><b>If successful:</b> Drink the antidote in your workstation and live!
       Gain +1 point for every other player who drank the same formula as the
-      last card in your hand.
-      <b>If unsuccessful:</b> Drink the formula card in your workstation that
-      gives you the highest sore. You die!
-    ```;
+      last card in your hand.</p>
+      <p><b>If unsuccessful:</b> Drink the formula card in your workstation that
+      gives you the highest sore. You die!</p>
+    `;
   }
 
   calculateScore(gameState) {
@@ -400,8 +408,7 @@ class Labmem007 extends Labmem {
 
     gameState[this.uid].workstation.forEach(card => {
       if (card.charCodeAt(0) - 65 === gameState.antidote) {
-        myPoint = Math.max(myPoint, card.charCodeAt(1) - 48);
-        formulaDrank = card.charCodeAt(0) - 65;
+        return gameState.antidote;
       } else if (isFormulaCard(card)) {
         myPoint = Math.max(myPoint, card.charCodeAt(1) - 48);
         formulaDrank = card.charCodeAt(0) - 65;

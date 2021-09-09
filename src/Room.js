@@ -12,6 +12,7 @@ import { State } from "./State";
 import { isFormulaCard, isSyringeCard, isToxinCard, isValidCard } from "./Card";
 import { Logs } from './Logs';
 import Modal from 'react-modal';
+import { getLabmem } from "./Labmem";
 
 const buttonClass = 'f6 link bn pointer br3 bw1 ph3 pv2 ma2 dib white bg-dark-blue';
 
@@ -164,9 +165,25 @@ function Board() {
 
   const playerInGame = room.players.includes(myId);
 
+  let labmem = null;
+  if (!notEnoughPlayers && room.gameState[myId].labmem) {
+    labmem = getLabmem(room.gameState[myId].labmem, myId);
+  }
+
   return (
     <div className='pv1 ph6-l ph1'>
       { notEnoughPlayers && <NotEnoughPlayers />}
+      {
+        labmem && room.gameState.state !== State.GAME_OVER &&
+        <div className="labmem-description bt--dashed">
+          <p>You are {labmem.constructor.name()}</p>
+          <div className="flex w8 mv2 items-center">
+            <div className={"flex flex-no-shrink mr2 w2.5 h3 labmem-background labmem-background-" + labmem.constructor.id()}>
+            </div>
+            <div className="flex-columns" dangerouslySetInnerHTML={{__html: labmem.constructor.description()}}></div>
+          </div>
+        </div>
+      }
       { !notEnoughPlayers && room.players.map(p =>
         <Player key={p} id={p} me={p === myId} selectCard={setSelectedCard} selectedCard={selectedCard} />)}
       { !notEnoughPlayers && playerInGame &&
@@ -244,11 +261,27 @@ function Player(props) {
   const playerName = room.playerNames[id];
   const attention = needsAttention(id);
 
+  let labmem = null;
+  let labmemInGame = false;
+  if (gameState[id].labmem) {
+    labmem = getLabmem(gameState[id].labmem, id);
+  }
+  gameState.players.forEach(player => {
+    if (gameState[player].labmem) labmemInGame = true;
+  });
+
   return (
-    <div className='flex items-center pv3 bt '>
-      <div className='flex-column w1.5 flex-no-shrink'>
-        {gameState[id].labmem !== "" &&
+    <div className='flex items-center pv3 bt'>
+      <div className={'flex-column flex-no-shrink ' + (labmemInGame ? ((gameState.state === State.GAME_OVER) ? 'w6 mr2' : 'w1.5') : 'w0')}>
+        { labmem && gameState.state !== State.GAME_OVER &&
           <span className='db'>&#128100;</span>
+        }
+        { labmem && gameState.state === State.GAME_OVER &&
+          <div className='flex items-center labmem-description'>
+            <div className={'flex-no-shrink mr2 h2.5 w2.25 labmem-background labmem-background-' + labmem.constructor.id()}>
+            </div>
+            <div dangerouslySetInnerHTML={{__html: labmem.constructor.description()}}></div>
+          </div>
         }
       </div>
       <div className={'flex-column mr2 w3.5 flex-no-shrink' + (me ? ' b' : '')}>
