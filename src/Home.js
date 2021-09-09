@@ -25,7 +25,7 @@ function Home() {
           <Title />
           <div className='mw7 center pa4 br2-ns bn'>
             <CreateRoom />
-            <JoinRoom />
+            {/* <JoinRoom /> */}
             <Logout user={user} />
           </div>
         </div>
@@ -49,6 +49,7 @@ function Login() {
     auth.signInWithPopup(provider);
   }
 
+  // eslint-disable-next-line
   const signInAnonymously = (e) => {
     e.preventDefault();
     auth.signInAnonymously();
@@ -57,7 +58,7 @@ function Login() {
   return (
     <div className='ph3'>
       <button onClick={signInWithGoogle} className={buttonClass}>Sign in with Google</button>
-      <button onClick={signInAnonymously} className={buttonClass}>Sign in anonymously</button>
+      {/* <button onClick={signInAnonymously} className={buttonClass}>Sign in anonymously</button> */}
     </div>
   )
 }
@@ -71,7 +72,7 @@ function Logout(props) {
   return (
     <div>
       <label className='f6 b mb2 dib mr2'>
-        User {user.uid}
+        User {user.email}
       </label>
       <button className={buttonClass + ' dib'} onClick={logout}>Logout</button>
     </div>
@@ -129,6 +130,7 @@ function CreateRoom() {
   )
 }
 
+// eslint-disable-next-line
 function JoinRoom() {
   const [error, setError] = useState('');
   const [code, setCode] = useState('')
