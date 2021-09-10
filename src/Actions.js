@@ -9,7 +9,7 @@ import { State } from "./State";
 
 const buttonClass = 'f6 link bn pointer br3 ma1 bw1 ph3 pv2 dib white bg-dark-blue';
 
-function _checkGameOver(gameState, logs) {
+function checkGameOver(gameState, logs) {
   let p = gameState.players[0];
   if (gameState[p].hand.length + gameState[p].stage.length > 1) return;
 
@@ -247,7 +247,7 @@ function _handleDiscard(gameState, uid, card) {
     }
   }
 
-  _checkGameOver(gameState, logs);
+  checkGameOver(gameState, logs);
   return {
     newGameState: gameState,
     logs
@@ -362,7 +362,7 @@ function _handleStartTrade(gameState, uid, card, isDeny) {
     }
   }
 
-  _checkGameOver(gameState, logs);
+  checkGameOver(gameState, logs);
   return {
     newGameState: gameState,
     logs
@@ -488,7 +488,7 @@ function _handlePickTrade(gameState, uid, card) {
   gameState.state = State.TURN_START;
   gameState.numStageCardsRequired = 0;
 
-  _checkGameOver(gameState, logs);
+  checkGameOver(gameState, logs);
   return {
     newGameState: gameState,
     logs
@@ -509,7 +509,7 @@ function _handlePickTradeCancel(gameState, uid) {
   gameState.state = State.TURN_START;
   gameState.numStageCardsRequired = 0;
 
-  _checkGameOver(gameState, logs);
+  checkGameOver(gameState, logs);
   return {
     newGameState: gameState,
     logs
@@ -624,7 +624,7 @@ function _handlePass(gameState, uid, card, direction) {
     }
   }
 
-  _checkGameOver(gameState, logs);
+  checkGameOver(gameState, logs);
   return {
     newGameState: gameState,
     logs
@@ -688,7 +688,7 @@ function _handleUseSyringe(gameState, uid, card) {
   logs.push(`${uid}: I am using a syringe card.`);
   gameState.state = State.PICK_SYRINGE;
 
-  _checkGameOver(gameState, logs);
+  checkGameOver(gameState, logs);
   return {
     newGameState: gameState,
     logs
@@ -790,7 +790,7 @@ function _handlePickSyringe(gameState, uid, card) {
   gameState.turnOwnerIndex = (gameState.turnOwnerIndex + 1) % gameState.players.length;
   gameState.numStageCardsRequired = 0;
 
-  _checkGameOver(gameState, logs);
+  checkGameOver(gameState, logs);
   return {
     newGameState: gameState,
     logs
@@ -894,4 +894,4 @@ function GetLabmem(props) {
   )
 }
 
-export { Actions, needsAttention };
+export { Actions, needsAttention, checkGameOver };

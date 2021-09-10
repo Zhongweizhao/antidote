@@ -166,7 +166,7 @@ function Board() {
   const playerInGame = room.players.includes(myId);
 
   let labmem = null;
-  if (!notEnoughPlayers && room.gameState[myId].labmem) {
+  if (!notEnoughPlayers && playerInGame && room.gameState[myId].labmem) {
     labmem = getLabmem(room.gameState[myId].labmem, myId);
   }
 

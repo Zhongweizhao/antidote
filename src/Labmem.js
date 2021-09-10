@@ -406,14 +406,15 @@ class Labmem007 extends Labmem {
     let myPoint = -100;
     let formulaDrank;
 
-    gameState[this.uid].workstation.forEach(card => {
+    for (let i = 0; i < gameState[this.uid].workstation.length; ++i) {
+      let card = gameState[this.uid].workstation[i];
       if (card.charCodeAt(0) - 65 === gameState.antidote) {
         return gameState.antidote;
       } else if (isFormulaCard(card)) {
         myPoint = Math.max(myPoint, card.charCodeAt(1) - 48);
         formulaDrank = card.charCodeAt(0) - 65;
       }
-    });
+    }
 
     return formulaDrank;
   }
