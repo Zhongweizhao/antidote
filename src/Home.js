@@ -49,7 +49,6 @@ function Login() {
     auth.signInWithPopup(provider);
   }
 
-  // eslint-disable-next-line
   const signInAnonymously = (e) => {
     e.preventDefault();
     auth.signInAnonymously();
@@ -58,7 +57,7 @@ function Login() {
   return (
     <div className='ph3'>
       <button onClick={signInWithGoogle} className={buttonClass}>Sign in with Google</button>
-      {/* <button onClick={signInAnonymously} className={buttonClass}>Sign in anonymously</button> */}
+      <button onClick={signInAnonymously} className={buttonClass}>Sign in anonymously</button>
     </div>
   )
 }

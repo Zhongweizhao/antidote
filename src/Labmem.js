@@ -1,14 +1,14 @@
 /**
  * Lab members
  * 
- * Labmem No.001: 冈部伦太郎
- * Labmem No.004: 牧濑红莉栖
- * Labmem No.003: 桥田至
- * Labmem No.008: 阿万音铃羽
- * Labmem No.002: 椎名真由理
- * Labmem No.005: 桐生萌郁
- * Labmem No.006: 漆原琉华
- * Labmem No.007: 菲利斯・喵喵
+ * Lab Member No.001: 冈部伦太郎
+ * Lab Member No.004: 牧濑红莉栖
+ * Lab Member No.003: 桥田至
+ * Lab Member No.008: 阿万音铃羽
+ * Lab Member No.002: 椎名真由理
+ * Lab Member No.005: 桐生萌郁
+ * Lab Member No.006: 漆原琉华
+ * Lab Member No.007: 菲利斯・喵喵
  * 
  */
 
@@ -82,7 +82,7 @@ class Labmem {
 }
 
 class Labmem001 extends Labmem {
-  static name() { return 'Labmem No.001'; }
+  static name() { return 'Lab Member No.001'; }
   static id() { return 1; }
 
   static description() {
@@ -115,7 +115,7 @@ class Labmem001 extends Labmem {
 }
 
 class Labmem004 extends Labmem {
-  static name() { return 'Labmem No.004'; }
+  static name() { return 'Lab Member No.004'; }
   static id() { return 4; }
 
   static description() {
@@ -148,7 +148,7 @@ class Labmem004 extends Labmem {
 }
 
 class Labmem003 extends Labmem {
-  static name() { return 'Labmem No.003'; }
+  static name() { return 'Lab Member No.003'; }
   static id() { return 3; }
 
   static description() {
@@ -181,7 +181,7 @@ class Labmem003 extends Labmem {
 }
 
 class Labmem008 extends Labmem {
-  static name() { return 'Labmem No.008'; }
+  static name() { return 'Lab Member No.008'; }
   static id() { return 8; }
 
   static description() {
@@ -214,7 +214,7 @@ class Labmem008 extends Labmem {
 }
 
 class Labmem002 extends Labmem {
-  static name() { return 'Labmem No.002'; }
+  static name() { return 'Lab Member No.002'; }
   static id() { return 2; }
 
   static description() {
@@ -261,7 +261,7 @@ class Labmem002 extends Labmem {
 }
 
 class Labmem005 extends Labmem {
-  static name() { return 'Labmem No.005'; }
+  static name() { return 'Lab Member No.005'; }
   static id() { return 5; }
 
   static description() {
@@ -308,7 +308,7 @@ class Labmem005 extends Labmem {
 }
 
 class Labmem006 extends Labmem {
-  static name() { return 'Labmem No.006'; }
+  static name() { return 'Lab Member No.006'; }
   static id() { return 6; }
 
   static description() {
@@ -352,7 +352,7 @@ class Labmem006 extends Labmem {
 }
 
 class Labmem007 extends Labmem {
-  static name() { return 'Labmem No.007'; }
+  static name() { return 'Lab Member No.007'; }
   static id() { return 7; }
 
   static description() {

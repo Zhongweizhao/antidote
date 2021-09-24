@@ -591,9 +591,10 @@ function _handlePass(gameState, uid, card, direction) {
   gameState[uid].hand.splice(index, 1);
   gameState[uid].stage.push(card);
   const passState = direction === 'left' ? State.PASS_LEFT : State.PASS_RIGHT;
+  const directionText = direction === 'left' ? 'above' : 'below';
 
   if (uid === gameState.players[gameState.turnOwnerIndex]) {
-    logs.push(`${uid}: everyone pick a card and pass to your ${direction}.`);
+    logs.push(`${uid}: everyone pick a card and pass to the player ${directionText}.`);
     gameState.state = passState;
     gameState.numStageCardsRequired = 1;
   } else {
@@ -604,7 +605,7 @@ function _handlePass(gameState, uid, card, direction) {
       }
     });
     if (everyonePassed) {
-      logs.push(`Everyone has passed a card to the ${direction}.`);
+      logs.push(`Everyone has passed a card to the player ${directionText}.`);
       for (let i = 0; i < gameState.players.length; ++i) {
         let to, from;
         if (direction === 'left') {
@@ -662,10 +663,12 @@ function Pass(props) {
     }
   }
 
+  const directionText = props.direction === "right" ? "down" : "up";
+
   return (
     <div>
       <div>
-        <button className={buttonClass} onClick={handleSubmit}>Pass {props.direction}</button>
+        <button className={buttonClass} onClick={handleSubmit}>Pass {directionText}</button>
       </div>
     </div>
   )
@@ -888,7 +891,7 @@ function GetLabmem(props) {
   return (
     <div>
       <div>
-        <button className={buttonClass} onClick={handleSubmit}>Get Labmem Card</button>
+        <button className={buttonClass} onClick={handleSubmit}>Get a Lab Member Card</button>
       </div>
     </div>
   )
